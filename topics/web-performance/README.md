@@ -509,6 +509,18 @@ Cache-Control: public, max-age=31536000, immutable
 
 ---
 
+### 5.1) Image/font loading tactics: `preload`, `preconnect`, and priorities
+
+**Short answer**:
+- Use `preload` for truly critical resources on the current navigation (hero image, key font), otherwise you can steal bandwidth from more important requests.
+- Use `preconnect` to warm up connections to critical third-party origins (fonts/CDN/API) when it reduces handshake latency.
+
+**Common patterns**:
+- Preload the **LCP image** only when you know it’s the LCP and it’s not already discovered early.
+- Be conservative with preloading fonts; preload only the fonts needed for above-the-fold text.
+
+---
+
 ### 6) Third-party scripts: what’s the performance strategy?
 
 **Short answer**:
@@ -516,6 +528,16 @@ Cache-Control: public, max-age=31536000, immutable
 - Defer/load on interaction when possible
 - Isolate and measure their long-task impact
 - Treat tags as budget decisions (bytes + main-thread time)
+
+---
+
+### 6.1) Third-party governance: how do you keep third parties from degrading UX?
+
+**Short answer**:
+- Require review/approval for new tags (budget + justification).
+- Load non-critical tags after interaction or after the page is stable.
+- Monitor their impact (long tasks, INP regressions, request waterfalls).
+- Remove vendors that don’t provide measurable value.
 
 ---
 
@@ -530,6 +552,17 @@ Cache-Control: public, max-age=31536000, immutable
 
 ---
 
+### 7.1) Perf budgets in CI: how do you enforce them?
+
+**Short answer**:
+- Add automated checks that fail PRs when budgets regress (bundle size, lighthouse thresholds, vitals proxies).
+- Use baseline comparisons (against main) rather than absolute numbers only.
+- Gate risky changes behind flags and monitor field metrics post-release.
+
+**Pitfall**: CI lab metrics can be noisy; treat them as guardrails and combine with field monitoring.
+
+---
+
 ### 8) Lab vs field data: what’s the difference?
 
 **Short answer**:
@@ -537,6 +570,66 @@ Cache-Control: public, max-age=31536000, immutable
 - **Field** (RUM/real users): real-world, great for prioritization and regression detection.
 
 **Interview framing**: “Use lab to diagnose; use field to decide what matters.”
+
+---
+
+### 8.1) Core Web Vitals troubleshooting playbook (per metric)
+
+**Short answer**:
+- **LCP**:
+  - Identify the LCP element (image vs text).
+  - Improve TTFB and resource priority (CDN, caching, `preload` when justified).
+  - Reduce render-blocking CSS/JS and main-thread long tasks.
+- **CLS**:
+  - Reserve space for media/ads (width/height/aspect ratio).
+  - Avoid inserting content above existing content without placeholders.
+  - Stabilize fonts (avoid late swaps causing reflow).
+- **INP**:
+  - Find long tasks around interaction (Performance trace, long task entries).
+  - Reduce JS work (split, defer third parties, move heavy compute to workers).
+  - Reduce render cost (memoize hot paths, virtualize lists, batch updates).
+
+---
+
+### 9) Performance APIs: what are Long Tasks and `PerformanceObserver`?
+
+**Short answer**:
+- **Long Tasks** are chunks of main-thread work that block responsiveness.
+- `PerformanceObserver` lets you observe performance entries (like long tasks, paints, layout shifts) and report/aggregate them for RUM or diagnostics.
+
+**Interview-friendly line**: “Use PerformanceObserver to measure in the field, not just in Lighthouse.”
+
+---
+
+### 10) Memory debugging: how do you approach “the page gets slower over time”?
+
+**Short answer**:
+- Suspect memory leaks: detached DOM nodes, unbounded caches, listeners not removed, intervals not cleared.
+- Use browser Memory tools (heap snapshots, allocation timelines) to find retained objects.
+- Identify the retaining path (who still references it) and remove/limit it.
+
+**Common front-end sources**:
+- Global event listeners (`window`, `document`) never cleaned up
+- `setInterval`/timers not cleared
+- Caches without eviction
+
+---
+
+### 11) Scheduling: when is `requestIdleCallback` useful, and what are the caveats?
+
+**Short answer**: It’s useful for low-priority work (precomputations, prefetch, cleanup) when the browser is idle. Caveats:
+- Not guaranteed to run quickly (or at all) under constant load.
+- Idle time varies across devices; don’t schedule critical UX work there.
+
+**Safer pattern**: keep critical work on the main path; use idle time for opportunistic improvements.
+
+---
+
+### 12) SharedArrayBuffer & Cross-Origin Isolation: when is it relevant?
+
+**Short answer**: It’s relevant for high-performance multi-threaded scenarios (e.g., heavy compute, WASM, advanced workers). To use `SharedArrayBuffer` safely, the page must be **cross-origin isolated** (COOP/COEP headers).
+
+**Interview guidance**: Mention it only when you truly need shared memory across threads; it increases deployment complexity.
 
 ---
 
@@ -552,6 +645,8 @@ Cache-Control: public, max-age=31536000, immutable
 - Pick one page and run Lighthouse. For each metric (LCP/CLS/FID or INP), identify the top 1–2 causes and propose a fix you can validate.
 - Pick a slow list UI and add virtualization; measure improvements in interaction responsiveness.
 - Audit third-party scripts: identify one that causes long tasks and propose a loading strategy change (defer/on-interaction/remove).
+- Add a `PerformanceObserver` for long tasks (and/or layout shifts) and report aggregated stats (count, max, total) to your logging endpoint.
+- Create a memory leak (unremoved listener or growing cache), confirm via heap snapshots, then fix it and confirm it’s gone.
 
 ## Links / references
 
@@ -569,3 +664,7 @@ Cache-Control: public, max-age=31536000, immutable
 - web.dev: FID: https://web.dev/articles/fid
 - web.dev: INP: https://web.dev/articles/inp
 - web.dev: Optimize long tasks: https://web.dev/articles/optimize-long-tasks
+- MDN: PerformanceObserver: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver
+- web.dev: Long tasks: https://web.dev/articles/long-tasks-devtools
+- MDN: `requestIdleCallback`: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
+- MDN: SharedArrayBuffer: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer

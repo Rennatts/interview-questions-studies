@@ -162,17 +162,141 @@ Front-end security interview questions test whether you understand real web thre
 
 ---
 
+## Frontend security (advanced)
+
+### 1) CSP tuning: how do you make CSP strict without breaking the app?
+
+**Short answer**: Start with **report-only**, inventory what the app loads/executes, then tighten step-by-step:
+- Use **nonces/hashes** instead of allowing `unsafe-inline` scripts.
+- Restrict `script-src`, `connect-src`, `frame-src` to known domains.
+- Add `report-to`/`report-uri` to collect violations during rollout.
+
+**Common pitfalls**:
+- Third-party tags that inject inline scripts
+- Inline event handlers (`onclick=...`) and inline script blocks
+- Missing domains for APIs/WebSockets in `connect-src`
+
+---
+
+### 2) What are Trusted Types and when are they useful?
+
+**Short answer**: Trusted Types is a browser security feature that helps prevent DOM XSS by requiring “trusted” values for dangerous sinks (like `innerHTML`) when enforced via CSP. It’s most useful in large apps where you want to eliminate ad-hoc HTML injection and enforce safe patterns.
+
+**Interview-friendly line**: “Trusted Types makes unsafe DOM injection harder by default and pushes sanitization to approved code paths.”
+
+---
+
+### 3) What is Subresource Integrity (SRI) and when do you use it?
+
+**Short answer**: SRI pins a fetched resource (usually a third-party script/style) to a known hash so if the resource is tampered with, the browser refuses to load it.
+
+**Example**:
+
+```html
+<script
+  src="https://cdn.example.com/lib.min.js"
+  integrity="sha384-..."
+  crossorigin="anonymous"
+></script>
+```
+
+**Trade-off**: Updating the library requires updating the integrity hash; it’s best for versioned CDN assets.
+
+---
+
+### 4) Dependency governance: what does a mature approach look like?
+
+**Short answer**:
+- Define allowed registries and lockfiles; require reproducible builds.
+- Automate vulnerability scanning and set SLAs for patching.
+- Review and limit high-risk dependencies (parsers, templating, build plugins).
+- Audit third-party scripts separately (they execute with high privilege in the browser).
+- Maintain an inventory of dependencies and owners.
+
+---
+
+### 5) CSRF nuances: when do you end up with `SameSite=None` and what does that imply?
+
+**Short answer**: `SameSite=None` is used when cookies must be sent in cross-site contexts (e.g., some embedded or cross-domain auth flows). It requires `Secure`, and it re-introduces more CSRF exposure unless you add additional server-side defenses.
+
+**Implications**:
+- You likely need a stronger CSRF strategy (CSRF tokens and/or strict Origin checks for state-changing requests).
+- Cookie scope (`Domain`, `Path`) should be as narrow as possible.
+
+---
+
+### 6) Token refresh patterns (frontend-safe options)
+
+**Short answer**: Prefer short-lived access tokens and a refresh mechanism that minimizes XSS exposure.
+
+**Common safer pattern**:
+- Access token: short-lived (in memory) for API calls.
+- Refresh token: stored in **HttpOnly Secure cookie** (not readable by JS).
+- Refresh endpoint rotates tokens and enforces CSRF protections if cookie-based.
+
+**Pitfall**: Storing refresh tokens in `localStorage` makes them XSS-extractable and increases blast radius.
+
+---
+
+### 7) Secure file upload basics: what should the front end care about?
+
+**Short answer**:
+- Validate **file type and size** on the client for UX, but enforce it on the server.
+- Use signed URLs / direct-to-storage uploads when appropriate (reduces API load).
+- Avoid rendering untrusted file contents as HTML; treat user files as untrusted.
+
+**Practical front-end checklist**:
+- Restrict file picker with `accept` (UX only).
+- Show progress and handle retry safely (idempotency).
+- If displaying images, use safe rendering paths and don’t assume metadata is trustworthy.
+
+---
+
+### 8) Clickjacking: what is it and how do you mitigate it?
+
+**Short answer**: Clickjacking is when your site is embedded in an attacker-controlled frame and users are tricked into clicking invisible/overlaid UI.
+
+**Mitigations**:
+- Prefer CSP `frame-ancestors` to control who can embed your pages.
+- Alternatively `X-Frame-Options` (older; less flexible).
+
+**Interview-friendly line**: “Use `frame-ancestors` as the modern, explicit control.”
+
+---
+
+### 9) Dependency scanning workflow: what does “good” look like in practice?
+
+**Short answer**:
+- Run automated scanning on PRs and on a schedule (advisories change over time).
+- Triage by exploitability and reachability (prod vs dev dependency, runtime vs build-only).
+- Patch quickly for high severity; track SLAs; document exceptions.
+
+**Common steps**:
+- Dependabot/renovate opens PRs → CI runs tests → security review → merge
+- Periodic audit report → backlog for medium/low risk issues
+
+---
+
 ## Suggested practice exercises
 
 - Find 3 places in a UI where developers commonly introduce XSS and propose safe alternatives.
 - Sketch an auth design using HttpOnly cookies + `SameSite` and explain CSRF protections.
 - Draft a basic CSP policy for a typical SPA and list what it might break (inline scripts, third-party tags).
 - Create a “dependency hygiene” checklist for PR reviews.
+- Create a CSP rollout plan (report-only → enforce) and list what you’ll measure in violation reports.
+- Pick one third-party script and decide whether to self-host it, apply SRI, or remove it; justify the decision.
+- Sketch a cross-site scenario that forces `SameSite=None` and list the CSRF mitigations you’d require.
+- Design a secure upload UX: client-side checks + signed URL flow + server validation + safe preview.
 
 ## Links / references
 
 - MDN: XSS (overview): https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting
 - MDN: CSRF: https://developer.mozilla.org/en-US/docs/Glossary/CSRF
 - MDN: CSP: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+- web.dev: CSP: https://web.dev/articles/csp
+- web.dev: Trusted Types: https://web.dev/articles/trusted-types
+- MDN: Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+- MDN: CSP `frame-ancestors`: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+- MDN: SameSite cookies: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
 - OAuth 2.0 (RFC 6749): https://www.rfc-editor.org/rfc/rfc6749
 - OIDC overview: https://openid.net/developers/how-connect-works/

@@ -397,6 +397,95 @@ Accessibility is a frequent interview area because it reflects real product qual
 
 ---
 
+## ARIA patterns (APG mapping)
+
+ARIA patterns are easiest when you map them to the WAI-ARIA Authoring Practices (APG): roles, keyboard interactions, and required states.
+
+### 1) Dialog (modal): what are the key requirements?
+
+**Short answer**:
+- The dialog has an **accessible name** (title via `aria-labelledby` or `aria-label`).
+- On open: move focus into the dialog; while open: **trap focus**; on close: return focus to the trigger.
+- Support Escape to close when appropriate.
+
+**APG mapping (conceptual)**:
+- role: `dialog` (or `alertdialog` for urgent confirmation)
+- name: `aria-labelledby` / `aria-label`
+- focus management: trap + restore focus
+
+---
+
+### 2) Combobox (autocomplete): why is it hard?
+
+**Short answer**: Comboboxes combine an input, a popup list, keyboard navigation, and active option announcements. If you build it yourself, you must implement the full interaction model (arrows, Enter, Escape, and proper ARIA state).
+
+**APG mapping (conceptual)**:
+- input: role `combobox` + `aria-expanded`, `aria-controls`
+- popup: role `listbox`
+- option: role `option`
+- active option: `aria-activedescendant`
+
+**Rule of thumb**: Prefer a proven component that follows APG, or use native controls when possible.
+
+---
+
+### 3) Tabs: what are the key ARIA roles and keyboard expectations?
+
+**Short answer**:
+- Use arrow keys to move focus between tabs (roving tabindex pattern).
+- Expose selected state and relationships so screen readers announce the active tab/panel.
+
+**APG mapping (conceptual)**:
+- container: `role="tablist"`
+- tabs: `role="tab"` + `aria-selected`
+- panels: `role="tabpanel"` labeled by the active tab
+
+---
+
+## Form error announcements (a11y)
+
+### 1) What’s the goal when announcing form errors?
+
+**Short answer**: Ensure users learn **what failed**, **why**, and **how to fix it**, without hunting—especially when using a screen reader.
+
+---
+
+### 2) What’s a solid, practical error pattern?
+
+**Short answer**:
+- Field-level message + connect it with `aria-describedby`
+- Set `aria-invalid="true"` for invalid fields
+- Add an error summary on submit that is focusable and announced (commonly via `role="alert"` or a live region)
+
+**Pitfall**: Error text exists visually but isn’t programmatically connected to the field.
+
+---
+
+## Focus trapping (best practices)
+
+### 1) What is focus trapping and when do you need it?
+
+**Short answer**: Focus trapping keeps keyboard focus inside a modal dialog while it’s open. You need it for true modals that block interaction with the rest of the page.
+
+**Common pitfalls**:
+- Not restoring focus to the opener
+- Trapping focus but leaving background content tabbable
+- Hidden/disabled controls still reachable in the tab order
+
+---
+
+## Audits (axe / Lighthouse)
+
+### 1) What can automated audits catch (and what can’t they)?
+
+**Short answer**:
+- Catch: missing labels, low contrast, unnamed buttons, some ARIA misuse.
+- Can’t fully catch: whether labels/instructions make sense, keyboard UX quality, complex widget behavior.
+
+**Interview-friendly line**: “Use axe/Lighthouse as a baseline, then do keyboard + screen reader spot checks on critical flows.”
+
+---
+
 ## Suggested practice exercises
 
 - Audit a simple page against POUR: list 2 issues per principle.
@@ -413,6 +502,8 @@ Accessibility is a frequent interview area because it reflects real product qual
 - Add an `aria-live` region for a “Saved” status message and confirm it’s announced without stealing focus.
 - Create a form error flow where the error summary is announced and each field error is linked via `aria-describedby`.
 - Pick 5 color pairs from your design system (text + background) and verify they meet 4.5:1 for normal text; adjust tokens if they don’t.
+- Use axe or Lighthouse to audit a page, fix 3 issues, and explain which ones were easy vs required human judgment.
+- Build a dialog with correct focus management and confirm it meets APG expectations.
 
 ## Links / references
 
@@ -424,3 +515,5 @@ Accessibility is a frequent interview area because it reflects real product qual
 - MDN: Focus management: https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets
 - WebAIM: Screen readers: https://webaim.org/articles/screenreader/
 - WCAG (Understanding contrast): https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+- axe-core: https://github.com/dequelabs/axe-core
+- Lighthouse: https://developer.chrome.com/docs/lighthouse/overview/

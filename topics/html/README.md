@@ -739,6 +739,150 @@ confirmInput.setCustomValidity(
 
 ---
 
+## Metadata (meta, canonical, robots)
+
+### 1) What are the most important metadata tags in `<head>`?
+
+**Short answer**: `title`, meta description, viewport, canonical, and robots directives (when needed). These affect SEO, sharing previews, and mobile UX.
+
+**Example**:
+
+```html
+<title>Account — Acme</title>
+<meta name="description" content="Manage your account settings." />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="canonical" href="https://example.com/account" />
+<meta name="robots" content="index,follow" />
+```
+
+---
+
+### 2) What’s the difference between `robots` meta and `robots.txt`?
+
+**Short answer**:
+- `robots` meta: page-level indexing directives (index/noindex, follow/nofollow).
+- `robots.txt`: crawl directives for user agents (what they should fetch), not a security feature.
+
+---
+
+## Tables (semantic + a11y)
+
+### 1) When should you use a table?
+
+**Short answer**: Use `<table>` for **tabular data** (rows/columns). Don’t use tables for layout.
+
+---
+
+### 2) What are the core semantic building blocks of an accessible table?
+
+**Short answer**:
+- `<caption>`: table title/summary (high value for accessibility).
+- `<th>` for headers with `scope="col"` / `scope="row"`.
+- `<thead>`, `<tbody>`, `<tfoot>` for structure (optional but helpful).
+
+**Example**:
+
+```html
+<table>
+  <caption>Quarterly revenue</caption>
+  <thead>
+    <tr>
+      <th scope="col">Quarter</th>
+      <th scope="col">Revenue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Q1</th>
+      <td>$1.2M</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+---
+
+## Iframe security (sandbox)
+
+### 1) Why is embedding third-party iframes risky?
+
+**Short answer**: Embedded content can run untrusted code, try to navigate the top page, or abuse permissions. You should restrict capabilities explicitly.
+
+---
+
+### 2) What does the `sandbox` attribute do?
+
+**Short answer**: `sandbox` locks down an iframe by default and you selectively re-enable capabilities with flags (e.g., scripts, forms, same-origin, popups).
+
+**Rule of thumb**: Start strict, then add only what you need.
+
+**Example**:
+
+```html
+<iframe
+  src="https://third-party.example/widget"
+  title="Widget"
+  sandbox="allow-scripts allow-forms"
+></iframe>
+```
+
+---
+
+## ARIA-by-default patterns (native-first)
+
+### 1) What does “ARIA-by-default” mean?
+
+**Short answer**: Prefer native elements whose semantics and keyboard behavior already match the UI. Only add ARIA for labeling/state when necessary.
+
+**Examples**:
+- Use `<button>` for actions (not `<div role="button">`).
+- Use `<a href>` for navigation (not click handlers).
+- Use `<details><summary>` for simple disclosure UI (when it fits).
+
+---
+
+### 2) What ARIA attributes are commonly correct to add on top of native HTML?
+
+**Short answer**:
+- `aria-expanded` on disclosure triggers
+- `aria-current="page"` for nav links
+- `aria-describedby` for help/error text
+- `aria-invalid` for invalid inputs
+
+---
+
+## Forms edge cases (autocomplete, inputmode)
+
+### 1) Why do `autocomplete` and `inputmode` matter?
+
+**Short answer**: They improve UX and correctness—better keyboard layouts on mobile, better autofill, and fewer user errors.
+
+---
+
+### 2) Common `autocomplete` values you should know
+
+**Short answer** (examples):
+- `email`, `username`, `current-password`, `new-password`
+- `name`, `given-name`, `family-name`
+- `street-address`, `address-line1`, `postal-code`, `country`
+
+**Pitfall**: Turning off autocomplete by default can harm usability; do it only for well-justified cases.
+
+---
+
+### 3) When do you use `inputmode`?
+
+**Short answer**: When you want a specific mobile keyboard while keeping a text input type.
+
+**Examples**:
+
+```html
+<input name="otp" inputmode="numeric" autocomplete="one-time-code" />
+<input name="search" inputmode="search" />
+```
+
+---
+
 ## Suggested practice exercises
 
 - Take a `<div>`-heavy snippet and refactor it to use `<header>`, `<nav>`, `<main>`, `<section>`, and `<footer>`.
@@ -752,6 +896,8 @@ confirmInput.setCustomValidity(
   - field-level errors
   - a top-level error summary
   - a simulated server error (e.g., “invalid credentials”) that is announced clearly
+- Mark up a dataset as a proper table with `<caption>` and `<th scope=...>`.
+- Embed a third-party widget in an `<iframe sandbox=...>` and justify each allowed capability.
 
 ## Links / references
 
@@ -763,3 +909,6 @@ confirmInput.setCustomValidity(
 - Google Search Central (SEO starter): https://developers.google.com/search/docs/fundamentals/seo-starter-guide
 - MDN: Responsive images: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Responsive_images
 - MDN: `<video>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
+- MDN: `<meta>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
+- MDN: `<table>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
+- MDN: `<iframe>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe

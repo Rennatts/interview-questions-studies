@@ -338,6 +338,60 @@ src/
 
 ---
 
+## Maintainability (manutenibilidade) in front-end
+
+### 1) What does “maintainability” mean in a front-end codebase?
+
+**Short answer**: The ability to change the code safely and quickly over time—new features, fixes, refactors—without fear of regressions. Maintainability is about **clarity**, **boundaries**, and **guardrails**.
+
+---
+
+### 2) What are common signs of low maintainability?
+
+**Short answer**:
+- “God components” (UI + data + side effects + routing in one file)
+- Deep prop drilling with unclear ownership
+- Inconsistent patterns across features (each team invents a new way)
+- Specificity wars in CSS / scattered styling approaches
+- Duplicate business rules in multiple places
+- Tests that are brittle or missing for critical logic
+- No clear module boundaries (anything imports anything)
+
+---
+
+### 3) What practices improve maintainability the most?
+
+**Short answer**:
+- **Clear boundaries**: feature-based structure + import rules (prevent spaghetti).
+- **Stable contracts**: typed interfaces for APIs, components, and domain logic.
+- **Component standards**: consistent props/variants, accessibility defaults, predictable composition.
+- **Design tokens/design system**: reduce one-off styling decisions.
+- **Testing strategy**: unit for logic, integration for seams, small set of E2E for critical flows.
+- **Linting/formatting**: prevent bikeshedding; enforce consistency.
+- **Documentation**: short “how we do X here” guides + examples.
+
+---
+
+### 4) How do you design components for maintainability (not just reuse)?
+
+**Short answer**:
+- Prefer “primitive + composition” over mega-components.
+- Keep component APIs small and consistent (variants > dozens of booleans).
+- Make invalid states unrepresentable (TypeScript unions for states).
+- Keep side effects out of presentational components (hooks/services).
+
+---
+
+### 5) How do you keep refactors safe as the codebase grows?
+
+**Short answer**:
+- Use TypeScript to make changes compile-safe.
+- Have a minimal but reliable test suite for critical behaviors.
+- Use feature flags and gradual rollouts for risky changes.
+- Track regressions via observability (errors + vitals).
+
+---
+
 ## Suggested practice exercises
 
 - Take a small app and refactor to a feature-based structure; write down the import boundaries you would enforce.
@@ -350,6 +404,7 @@ src/
 - Define a Button component spec: variants, states, a11y requirements, and deprecation plan for API changes.
 - Draw a micro-frontend architecture: shell + 2 feature apps. Decide how to share auth, routing, and the design system, and list the top 3 risks.
 - Take a “filters + pagination + sorting” page: decide what lives in URL state vs local state vs server cache, and justify your choices.
+- Pick one “god component” in any project and refactor it into: (1) a container (data + side effects) and (2) a presentational component. Note what became easier to test.
 
 ## Links / references
 

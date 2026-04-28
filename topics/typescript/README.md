@@ -142,15 +142,98 @@ type Loadable<T> =
 
 ---
 
+## Advanced TypeScript (high-signal)
+
+### 1) What are conditional types and what are they good for?
+
+**Short answer**: Conditional types select a type based on a condition: `T extends U ? X : Y`. They’re used for type-level branching and for deriving types from other types.
+
+**Example**:
+
+```ts
+type IdOf<T> = T extends { id: infer I } ? I : never;
+```
+
+---
+
+### 2) What are mapped types and when do you use them?
+
+**Short answer**: Mapped types transform properties of an object type (often used to build “variants” of a type).
+
+**Example**:
+
+```ts
+type Flags<T> = { [K in keyof T]: boolean };
+```
+
+---
+
+### 3) What is a type guard, and how do you write one?
+
+**Short answer**: A type guard is a runtime check that tells TypeScript how to narrow: `value is SomeType`.
+
+**Example**:
+
+```ts
+type ApiError = { error: { code: string } };
+
+function isApiError(x: unknown): x is ApiError {
+  return typeof x === "object" && x !== null && "error" in x;
+}
+```
+
+---
+
+### 4) What does the `satisfies` operator do?
+
+**Short answer**: `satisfies` checks that a value conforms to a type **without changing** the value’s inferred type. It’s great for config objects and prevents accidental widening.
+
+**Example**:
+
+```ts
+const routes = {
+  home: "/",
+  settings: "/settings",
+} satisfies Record<string, `/${string}`>;
+```
+
+---
+
+### 5) TS config basics: what do `strict` and `noImplicitAny` change?
+
+**Short answer**:
+- `strict`: enables a bundle of checks that make types safer (recommended for most apps).
+- `noImplicitAny`: prevents implicit `any` (forces you to type untyped values).
+
+**Interview-friendly line**: “I prefer strict mode because it makes refactors safer and catches invalid states early.”
+
+---
+
+### 6) API typing patterns: why do you still need runtime validation?
+
+**Short answer**: TypeScript types don’t exist at runtime, so external data (API responses, `localStorage`, `JSON.parse`) must be validated or decoded. Otherwise, your app can crash even if it “type checks”.
+
+**Common approaches**:
+- Validate with schemas (JSON Schema / OpenAPI-based) or parsing libraries
+- Narrow with type guards at boundaries
+
+---
+
 ## Suggested practice exercises
 
 - Model an API response with a discriminated union and make the UI branch exhaustively.
 - Write a generic `groupBy<T, K extends string | number>(items, keyFn)` helper.
 - Replace `any` in a module with `unknown` + type guards.
 - Type a custom React hook that returns `{ data, error, isLoading }` with safe narrowing.
+- Write a conditional type `UnwrapPromise<T>` and test it on nested Promises.
+- Use `satisfies` to validate a config object while keeping literal types (no widening).
+- Add runtime validation for an API response boundary (schema or type guard) and show how it prevents a crash.
 
 ## Links / references
 
 - TypeScript Handbook: https://www.typescriptlang.org/docs/handbook/intro.html
 - TS narrowing: https://www.typescriptlang.org/docs/handbook/2/narrowing.html
+- Conditional types: https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
+- Mapped types: https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
+- TS `satisfies`: https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html
 - React + TypeScript (React docs): https://react.dev/learn/typescript

@@ -295,19 +295,6 @@ Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=3600
 
 ---
 
-## Suggested practice exercises
-
-- Build a demo that repeatedly reads `getBoundingClientRect()` and writes style in a loop; then refactor to batch reads/writes and compare frame rate.
-- Create an animation two ways: one using `top/left`, another using `transform: translate(...)`; compare in Performance panel.
-- Add `width`/`height` to images and observe CLS improvements.
-
-## Links / references
-
-- MDN: Critical rendering path: https://developer.mozilla.org/en-US/docs/Web/Performance/Critical_rendering_path
-- web.dev: Rendering performance: https://web.dev/articles/rendering-performance
-
----
-
 ## WebSockets
 
 ### 1) What are WebSockets and what problem do they solve?
@@ -402,17 +389,6 @@ ws.onclose = (e) => console.log("closed", e.code, e.reason);
 
 ---
 
-## Suggested practice exercises
-
-- Build a small client that connects, sends a “subscribe” message, and renders updates; add reconnection with exponential backoff.
-- Implement a heartbeat strategy and detect stale connections (simulate by disabling network).
-- Design a tiny message protocol: `subscribe`, `unsubscribe`, `event`, `error`, with sequence numbers for catch-up.
-
-## Links / references
-
-- MDN: WebSocket API: https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
-- web.dev: WebSockets: https://web.dev/articles/websockets
-
 ---
 
 ## Service Workers
@@ -497,21 +473,20 @@ ws.onclose = (e) => console.log("closed", e.code, e.reason);
 
 ## Suggested practice exercises
 
-- Pre-cache a small asset list during install; add an activate step to clean up old cache versions.
-- Implement stale-while-revalidate for a JSON endpoint.
-- Build an offline fallback page for navigation requests.
-
-## Links / references
-
-- MDN: Service Worker API: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
-- web.dev: Service workers: https://web.dev/learn/pwa/service-workers/
-## Suggested practice exercises
-
 - Implement event delegation for a list (click on a button inside each item) and log `target` vs `currentTarget`.
 - Build a tiny “router” demo using `history.pushState` and `popstate`.
 - Create a performance demo where you trigger layout thrashing, then fix it by batching reads/writes.
 - Implement “remember theme” using `localStorage`, but keep the initial theme flash-free (apply early).
 - Sketch an auth flow that uses HttpOnly cookies + `SameSite` and explain CSRF protections.
+- Build a demo that repeatedly reads `getBoundingClientRect()` and writes style in a loop; then refactor to batch reads/writes and compare frame rate.
+- Create an animation two ways: one using `top/left`, another using `transform: translate(...)`; compare in Performance panel.
+- Add `width`/`height` to images and observe CLS improvements.
+- Build a small client that connects, sends a “subscribe” message, and renders updates; add reconnection with exponential backoff.
+- Implement a heartbeat strategy and detect stale connections (simulate by disabling network).
+- Design a tiny message protocol: `subscribe`, `unsubscribe`, `event`, `error`, with sequence numbers for catch-up.
+- Pre-cache a small asset list during install; add an activate step to clean up old cache versions.
+- Implement stale-while-revalidate for a JSON endpoint.
+- Build an offline fallback page for navigation requests.
 
 ## Links / references
 
@@ -521,3 +496,9 @@ ws.onclose = (e) => console.log("closed", e.code, e.reason);
 - MDN: `localStorage`: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
 - MDN: Web Storage API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
 - MDN: `document.cookie`: https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
+- MDN: Critical rendering path: https://developer.mozilla.org/en-US/docs/Web/Performance/Critical_rendering_path
+- web.dev: Rendering performance: https://web.dev/articles/rendering-performance
+- MDN: WebSocket API: https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+- web.dev: WebSockets: https://web.dev/articles/websockets
+- MDN: Service Worker API: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
+- web.dev: Service workers: https://web.dev/learn/pwa/service-workers/

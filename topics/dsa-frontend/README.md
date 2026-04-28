@@ -449,6 +449,95 @@ DSA shows up in front-end interviews because it tests core problem solving: reco
 
 ---
 
+## Heaps / Priority Queue
+
+### 1) What is a heap and when do you use it?
+
+**Short answer**: A heap is a structure that can quickly give you the min or max element. Use it for “top k”, “merge k sorted lists”, and scheduling problems.
+
+**Complexity (typical)**:
+- insert: \(O(\log n)\)
+- extract-min/max: \(O(\log n)\)
+- peek: \(O(1)\)
+
+---
+
+### 2) Common interview problems that hint “use a heap”
+
+**Short answer**:
+- “Top k frequent…”
+- “Kth largest/smallest…”
+- “Merge k …”
+- “Smallest range…”
+
+---
+
+## Dynamic programming (basics)
+
+### 1) When is DP the right tool?
+
+**Short answer**: When you have **overlapping subproblems** and **optimal substructure** (many repeated states). If brute force/backtracking repeats work, memoization/DP helps.
+
+---
+
+### 2) Memoization vs tabulation
+
+**Short answer**:
+- Memoization: top-down recursion + cache
+- Tabulation: bottom-up iterative fill
+
+**Rule of thumb**: Start with memoization to get correctness, then switch to tabulation if you need better control over performance/space.
+
+---
+
+## Intervals
+
+### 1) What’s the standard approach for interval problems?
+
+**Short answer**:
+- Sort by start time (or end time depending on the problem)
+- Sweep/merge in one pass
+
+**Common tasks**:
+- Merge intervals
+- Insert interval
+- Minimum number of meeting rooms (often uses a heap)
+
+---
+
+### 2) Common pitfalls with intervals
+
+**Short answer**:
+- Incorrect overlap condition (inclusive vs exclusive end)
+- Forgetting to sort first
+- Not handling empty input or single interval
+
+---
+
+## Bit manipulation (optional)
+
+### 1) When do bit tricks show up?
+
+**Short answer**: When constraints or patterns involve parity, sets/masks, or performance on integers (e.g., “single number”, “subset masks”, “power of two”).
+
+**Interview note**: It’s optional for many front-end roles, but knowing a few basics helps.
+
+---
+
+## Patterns cheat sheet (quick cues)
+
+**Two pointers**: sorted arrays, dedupe, palindrome  
+**Sliding window**: longest/shortest contiguous substring/subarray  
+**Hash map**: counts, complements, “seen”, prefix sum bookkeeping  
+**Prefix sums**: subarray sum counts, range queries  
+**Stack**: parentheses, monotonic next greater/smaller  
+**Queue/BFS**: shortest steps in unweighted graphs, level order  
+**Heap**: top k, kth, merging k streams, schedulers  
+**DP**: repeated states; memoize or tabulate  
+**Intervals**: sort + sweep/merge  
+
+---
+
 ## Classic interview questions (prompts)
 
 ### 1) Two Sum (array, return indices)
@@ -507,6 +596,9 @@ DSA shows up in front-end interviews because it tests core problem solving: reco
 - Implement: generate all subsets of an array (backtracking).
 - Implement: binary search (iterative) and then lower bound (first index ≥ target).
 - Implement: search in rotated sorted array.
+- Implement: merge intervals (sort + sweep).
+- Implement: top k elements (heap / priority queue).
+- Implement: a DP problem (e.g., climbing stairs) with memoization and tabulation.
 - For each solution, write the invariant (what is always true during the loop).
 
 ## Links / references
@@ -514,3 +606,4 @@ DSA shows up in front-end interviews because it tests core problem solving: reco
 - NeetCode patterns (conceptual): https://neetcode.io/
 - Big-O cheat sheet: https://www.bigocheatsheet.com/
 - VisuAlgo (visualizations): https://visualgo.net/en
+- CP Algorithms (reference): https://cp-algorithms.com/

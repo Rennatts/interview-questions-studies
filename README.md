@@ -143,6 +143,11 @@ It’s designed to scale as you add more topics, questions, explanations, code e
 - [Security (Frontend)](topics/security-frontend/README.md)
 - [React (core interview topics)](topics/react/README.md)
 - [TypeScript (core interview topics)](topics/typescript/README.md)
+- [Observability (frontend)](topics/observability/README.md)
+- [i18n & localization](topics/i18n/README.md)
+- [API design for front-end](topics/api-design-frontend/README.md)
+- [Networking](topics/networking/README.md)
+- [Browser deep dives](topics/browser-deep-dives/README.md)
 
 ### Conventions used in this repo
 

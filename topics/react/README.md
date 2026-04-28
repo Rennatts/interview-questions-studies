@@ -190,15 +190,95 @@ React interviews typically focus on whether you understand **how React renders**
 
 ---
 
+## Modern React concurrency (basics)
+
+### 1) What changed in modern React regarding concurrency (high level)?
+
+**Short answer**: React can render work in a more interruptible way and prioritize user interactions, which helps keep the UI responsive under load. In practice, you design for responsive updates and avoid long main-thread blocks.
+
+**Interview note**: Concurrency doesn’t “make code parallel”; it helps React schedule rendering work more intelligently.
+
+---
+
+### 2) What’s a practical way to talk about priority in React updates?
+
+**Short answer**: Some updates are urgent (typing/click feedback), others are non-urgent (filtering a large list, expensive recalculation). Prioritizing helps keep input responsive.
+
+---
+
+## Suspense & data fetching patterns (high level)
+
+### 1) What is Suspense used for?
+
+**Short answer**: Suspense coordinates showing fallback UI while something is “not ready yet” (commonly code splitting and, in some architectures, data fetching). It’s about managing loading states in a consistent way.
+
+---
+
+### 2) What’s a common mistake with Suspense discussions in interviews?
+
+**Short answer**: Treating Suspense as a universal data fetching solution in all setups. In many codebases, data fetching is handled by a dedicated server-state layer; Suspense may or may not be part of that architecture.
+
+---
+
+## Testing React (RTL best practices)
+
+### 1) What’s RTL’s core philosophy for React testing?
+
+**Short answer**: Test components the way users experience them: query by role/label/text and assert on visible behavior, not implementation details.
+
+---
+
+### 2) What queries should you prefer?
+
+**Short answer**: Prefer accessible queries:
+- `getByRole` (with `name`)
+- `getByLabelText`
+- `getByText` (when appropriate)
+
+**Pitfall**: Overusing `data-testid` when a role/label exists can hide accessibility problems.
+
+---
+
+### 3) How do you handle async UI in RTL without flakes?
+
+**Short answer**:
+- Wait for user-visible outcomes (`findBy*`, `waitFor`)
+- Don’t use arbitrary sleeps
+- Mock at the boundary (network) and keep UI real
+
+---
+
+## State colocation & memoization pitfalls
+
+### 1) What is state colocation and why does it help?
+
+**Short answer**: Keep state as close as possible to where it’s used. It reduces unnecessary re-renders and makes ownership clear.
+
+---
+
+### 2) What are common memoization pitfalls?
+
+**Short answer**:
+- Adding `useMemo`/`useCallback` everywhere without measuring (adds complexity and can be slower).
+- Incorrect dependency arrays (stale values/bugs).
+- Memoizing objects/functions but still passing unstable props from parents (no real win).
+
+**Rule of thumb**: Memoize only when it prevents expensive work or prevents unnecessary renders in hot paths.
+
+---
+
 ## Suggested practice exercises
 
 - Explain (out loud) why “state updates batch” and what that implies for reading state immediately after setting it.
 - Build a list UI with filters and measure re-renders; reduce unnecessary re-renders using component splitting + memoization.
 - Implement a form with accessible errors (labels, `aria-describedby`, error summary) and async submit.
 - Create a list with stable keys and demonstrate why index keys break when reordering.
+- Write an RTL test for a component that fetches data: assert loading → success → error states using role-based queries.
+- Take a component with “global” state and refactor to colocate state; measure re-renders before/after (Profiler).
 
 ## Links / references
 
 - React docs: https://react.dev/learn
 - React Hooks reference: https://react.dev/reference/react
 - React DevTools Profiler: https://react.dev/learn/profile-a-react-app
+- Testing Library: queries by role: https://testing-library.com/docs/queries/byrole

@@ -473,6 +473,172 @@ Positioning comes up in interviews because it’s behind tooltips/menus, sticky 
 
 ---
 
+## Stacking contexts (deep dive)
+
+Stacking contexts explain most “my dropdown is behind the header” and “z-index doesn’t work” bugs. The key idea: **z-index compares only within the same stacking context**.
+
+### 1) What is a stacking context?
+
+**Short answer**: A stacking context is a self-contained z-index universe. Children’s z-index values are compared **within** that context; the whole context is then stacked as a single unit against sibling contexts.
+
+---
+
+### 2) What commonly creates a new stacking context?
+
+**Short answer** (common triggers):
+- Positioned element with `z-index` (non-auto)
+- `transform` (any non-`none`)
+- `opacity < 1`
+- `filter`
+- `isolation: isolate`
+- `position: fixed` / `sticky` (in many cases, plus their own stacking behavior)
+
+**Practical debugging**:
+- If a child can’t rise above something “outside”, check ancestors for `transform`/`opacity`/`z-index` that created a new context.
+
+---
+
+### 3) A reliable mental model for fixing z-index issues
+
+**Short answer**:
+- Prefer fewer contexts (don’t sprinkle `z-index` everywhere).
+- Create one intentional “overlay layer” root when needed (modals/toasts).
+- Avoid putting overlays inside elements that create stacking contexts (e.g., transformed parents).
+
+---
+
+## Layout patterns cookbook
+
+### 1) Holy Grail layout (header / footer / sidebar / main)
+
+**Short answer**: Use Grid for 2D page layout; it’s straightforward and stable.
+
+**Example**:
+
+```css
+.page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 280px 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+}
+.header { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main { grid-area: main; min-width: 0; }
+.footer { grid-area: footer; }
+```
+
+---
+
+### 2) Sticky footer (footer at bottom when content is short)
+
+**Short answer**: Use a column layout with `min-height: 100dvh` and make the main content flex/grow.
+
+**Example**:
+
+```css
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.content { flex: 1; }
+```
+
+---
+
+## CSS variables & tokens
+
+### 1) What are CSS variables and why are they useful?
+
+**Short answer**: CSS variables (custom properties) store design values (colors, spacing, radii) and can be themed at runtime. They enable consistent styling across components and architectures (plain CSS, Modules, Tailwind).
+
+**Example**:
+
+```css
+:root {
+  --space-2: 8px;
+  --radius-2: 8px;
+  --color-bg: #fff;
+  --color-fg: #111;
+}
+.card {
+  padding: var(--space-2);
+  border-radius: var(--radius-2);
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+```
+
+---
+
+### 2) How do you implement theming with tokens?
+
+**Short answer**: Override variables at a scope boundary (often on `html` or a root wrapper) using a theme attribute/class.
+
+**Example**:
+
+```css
+html[data-theme="dark"] {
+  --color-bg: #111;
+  --color-fg: #f5f5f5;
+}
+```
+
+---
+
+## Container queries (deeper)
+
+### 1) `@container` vs `@media`: what’s the key difference?
+
+**Short answer**:
+- `@media` reacts to the **viewport**.
+- `@container` reacts to the **container’s size**, making components more reusable in different layouts.
+
+---
+
+### 2) What’s a common pitfall with container queries?
+
+**Short answer**: Forgetting to establish a container (`container-type: inline-size`) on an ancestor, so the query never matches.
+
+---
+
+## Accessibility in CSS
+
+### 1) Why is `:focus-visible` recommended?
+
+**Short answer**: It provides a visible focus ring for keyboard users while avoiding focus outlines on mouse clicks (cleaner UX without harming accessibility).
+
+**Example**:
+
+```css
+:focus-visible {
+  outline: 2px solid dodgerblue;
+  outline-offset: 2px;
+}
+```
+
+---
+
+### 2) How do you support `prefers-reduced-motion`?
+
+**Short answer**: Reduce or disable non-essential animations and smooth scrolling for users who request less motion.
+
+**Example**:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+  * { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}
+```
+
+---
+
 ## Specificity & cascade
 
 This is one of the fastest ways to debug “why didn’t my CSS apply?” The browser resolves conflicts using the **cascade** (which rule wins) and **specificity** (how targeted the selector is).
@@ -912,6 +1078,8 @@ CSS architecture is about keeping styles **scalable**, **predictable**, and **ma
 - Add `prefers-reduced-motion` handling for a loading spinner and a toast enter/exit animation.
 - Style the same “Button” component three ways: BEM, CSS Modules, and Tailwind. Write down what’s easier/harder to maintain.
 - Create a small token set with CSS variables and consume it from both Tailwind (config) and non-Tailwind CSS.
+- Reproduce a z-index bug caused by a stacking context (e.g., parent `transform`) and fix it by changing the stacking context boundary.
+- Implement the Holy Grail layout using Grid and then re-implement it using Flexbox; compare complexity.
 
 ## Links / references
 
@@ -925,3 +1093,6 @@ CSS architecture is about keeping styles **scalable**, **predictable**, and **ma
 - MDN: `clamp()`: https://developer.mozilla.org/en-US/docs/Web/CSS/clamp
 - MDN: CSS transitions: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transitions/Using_CSS_transitions
 - MDN: CSS animations: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animations/Using_CSS_animations
+- MDN: Stacking context: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context
+- MDN: CSS custom properties: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
+- MDN: Container queries: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries

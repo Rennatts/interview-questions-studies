@@ -284,6 +284,76 @@ End-to-end (E2E) tests validate critical user journeys through the system as a w
 
 ---
 
+## Component testing (Storybook strategy)
+
+### 1) What is component testing, and how does Storybook help?
+
+**Short answer**: Component testing verifies UI components in isolation with realistic rendering and interactions. Storybook helps by providing a dedicated environment for states/variants and can be used as a foundation for automated tests across those states.
+
+**Good fit**:
+- Design system components (Button, Input, Modal, Tabs)
+- Visual + interaction coverage across variants/states
+
+---
+
+### 2) What’s a practical component testing strategy?
+
+**Short answer**:
+- Define stories for all meaningful states (loading, error, empty, disabled, variants).
+- Run automated checks per story (a11y audit, interaction tests, visual diffs).
+- Keep component tests fast; rely on integration/E2E for cross-component flows.
+
+---
+
+## Snapshot testing (guidance)
+
+### 1) When are snapshots useful, and when do they become noise?
+
+**Short answer**:
+- Useful for stable outputs (small pure components, config objects) where diffs are readable.
+- Noise when snapshots are huge or change often; reviewers rubber-stamp updates without understanding.
+
+**Rule of thumb**: Prefer targeted assertions (roles/text/behavior). Use snapshots sparingly and keep them small.
+
+---
+
+## Playwright vs Cypress (comparison)
+
+### 1) How do you compare Playwright and Cypress?
+
+**Short answer**:
+- Both are excellent for E2E; choice often comes down to team preference and ecosystem.
+- Playwright is strong for cross-browser automation and traces.
+- Cypress is strong with an interactive runner and debugging ergonomics.
+
+**Interview framing**: “Pick one, standardize patterns, and focus on reliability: deterministic data, stable selectors, no sleeps.”
+
+---
+
+## Test pyramid vs testing trophy (with examples)
+
+### 1) What’s the test pyramid?
+
+**Short answer**: Many unit tests, some integration tests, few E2E tests.
+
+**Example mapping**:
+- Unit: validators, reducers, formatters
+- Integration: page slice with mocked network (loading/error states)
+- E2E: login + checkout money flow
+
+---
+
+### 2) What’s the testing trophy (frontend)?
+
+**Short answer**: Emphasizes more integration tests (UI + real interactions), fewer unit tests, few E2E tests, plus static analysis.
+
+**Example mapping**:
+- Static: typecheck + lint
+- Integration: RTL tests for component flows (form submit → server error → retry)
+- E2E: 3–10 critical journeys
+
+---
+
 ## Mocking
 
 ### 1) What is mocking (and why do we do it)?
@@ -339,6 +409,63 @@ End-to-end (E2E) tests validate critical user journeys through the system as a w
 
 ---
 
+## Testing (advanced)
+
+### 1) What is contract testing?
+
+**Short answer**: Contract testing verifies that two components that integrate (often **frontend ↔ API**) agree on a shared contract (request/response shapes, status codes, error formats) without needing full end-to-end tests for every case.
+
+**Common approaches**:
+- **Schema-based**: validate responses against OpenAPI/JSON Schema.
+- **Consumer-driven contracts**: the consumer (frontend) defines expectations; provider verifies them in CI.
+
+---
+
+### 2) Visual regression testing: what is it and when is it worth it?
+
+**Short answer**: Visual regression tests compare screenshots across changes to catch UI diffs (layout, spacing, colors). It’s most valuable for design-system components and critical UI screens where pixel-level regressions matter.
+
+**Pitfalls**:
+- Flaky diffs due to fonts/anti-aliasing/animations
+- Too many snapshots with low signal
+
+**Mitigations**:
+- Disable animations, stabilize fonts, control viewport and data
+- Review workflow with clear baselines and approvals
+
+---
+
+### 3) Test data strategies: how do you keep tests deterministic?
+
+**Short answer**:
+- Seed data in a known state (fixtures, factories) per test or per suite.
+- Use unique ids per run to avoid collisions.
+- Keep fixtures small and representative; avoid giant JSON blobs.
+- Reset state between tests (DB reset, sandbox accounts, isolated tenants).
+
+**Rule of thumb**: “Every test should be able to run in any order.”
+
+---
+
+### 4) CI flake management: what causes flakes and how do you reduce them?
+
+**Short answer**:
+- Causes: timing assumptions, shared state, slow CI machines, parallelism conflicts, network instability.
+- Reduce: deterministic data, robust waits (wait for UI state), isolate tests, run in parallel safely, capture traces/screenshots on failure.
+
+**Retry strategy**:
+- Retries can reduce noise, but treat retries as a signal—fix the root cause, don’t normalize flakes.
+
+---
+
+### 5) When do you add more E2E vs more integration tests?
+
+**Short answer**:
+- Add **integration tests** when you want fast, stable coverage of UI + mocked backend behavior.
+- Add **E2E tests** only for a small set of business-critical journeys and high-risk integrations.
+
+---
+
 ## Suggested practice exercises
 
 - Write unit tests for a `formatCurrency(amount, locale)` helper (edge cases: negative, rounding, invalid inputs).
@@ -357,6 +484,9 @@ End-to-end (E2E) tests validate critical user journeys through the system as a w
   - an RTL integration test for its user-visible behavior
   - a Cypress E2E test for the full flow that uses it
 - Write one test that over-mocks (brittle), then rewrite it to mock at the HTTP boundary and assert on user-visible behavior.
+- Add a contract test for an API response shape (schema validation) and show how it fails fast when the backend changes.
+- Add a visual regression test for a Button component (states + variants) and stabilize it (disable animations, stable data).
+- Take one flaky CI test and fix it (remove sleeps, isolate data, add trace artifacts).
 
 ## Links / references
 
@@ -365,3 +495,6 @@ End-to-end (E2E) tests validate critical user journeys through the system as a w
 - Testing Library: queries by role: https://testing-library.com/docs/queries/byrole
 - Playwright docs: https://playwright.dev/docs/intro
 - Cypress docs: https://docs.cypress.io/
+- Pact (contract testing): https://pact.io/
+- Storybook test runner (component testing): https://storybook.js.org/docs/writing-tests/test-runner
+- Storybook interaction testing: https://storybook.js.org/docs/writing-tests/interaction-testing

@@ -23,6 +23,20 @@ Debugging is a core interview signal: how you reduce uncertainty, isolate variab
 
 ---
 
+### 2) Debugging by binary search: what does it look like in practice?
+
+**Short answer**: Reduce uncertainty by systematically halving the search space:
+- Disable half the feature flags / code paths and see if the bug remains.
+- Comment out half of the render tree (or return early) to localize the source.
+- Bisect inputs (small dataset → full dataset; one account → many).
+
+**Example workflow**:
+- Bug appears on a page → remove sections until it disappears.
+- Within the failing section → remove child components until localized.
+- Within the component → bisect the last few changes / props / effects.
+
+---
+
 ## JavaScript errors & runtime behavior
 
 ### 1) How do you debug “it works locally but not in prod”?
@@ -134,6 +148,14 @@ Debugging is a core interview signal: how you reduce uncertainty, isolate variab
 
 ---
 
+### 3) CSS stacking context lab (reproduce + fix)
+
+**Short answer**:
+- Reproduce: put a dropdown inside a parent with `transform: translateZ(0)` (or `opacity < 1`) and try to raise it above a sibling overlay with `z-index`.
+- Fix: move the overlay to a top-level layer (portal pattern) or remove the stacking-context-creating style from the parent; avoid random high z-index.
+
+---
+
 ## Performance debugging (jank, slow pages)
 
 ### 1) What’s your approach to “scrolling is janky”?
@@ -217,6 +239,29 @@ Debugging is a core interview signal: how you reduce uncertainty, isolate variab
 
 ---
 
+### 3) Sourcemaps / prod debugging checklist
+
+**Short answer**:
+- Verify sourcemaps are generated for production builds.
+- Ensure error reporting can resolve stacks to original sources (upload maps to your error tool).
+- Confirm release/version tags are correct (commit SHA).
+- Ensure maps aren’t publicly exposed if you have that constraint (use private upload if needed).
+- Reproduce with the same environment (feature flags, locale, device, network).
+
+---
+
+## React-specific debugging
+
+### 1) What’s your React debugging checklist?
+
+**Short answer**:
+- Confirm state/props assumptions (log once, then use breakpoints).
+- Use React DevTools to inspect component props/state and re-render reasons.
+- Check effect dependencies for loops/stale values.
+- Profile rendering hotspots (React Profiler + browser Performance).
+
+---
+
 ## Suggested practice exercises
 
 - Reproduce a CORS failure and fix it by adjusting server headers (explain the preflight).
@@ -224,9 +269,13 @@ Debugging is a core interview signal: how you reduce uncertainty, isolate variab
 - Record a Performance trace for a slow interaction and identify the longest task.
 - Debug an unlabeled icon button and fix it with an accessible name.
 - Simulate a stale asset caching bug and fix it using fingerprinted filenames + cache headers.
+- Take a bug and apply “binary search” isolation; write down each halving step and the conclusion.
+- Reproduce a stacking context bug and fix it two ways (portal vs removing the context).
+- Debug a production error using a stack trace + sourcemaps and document the steps.
 
 ## Links / references
 
 - Chrome DevTools docs: https://developer.chrome.com/docs/devtools/
 - web.dev: Fix long tasks: https://web.dev/articles/optimize-long-tasks
 - MDN: CORS: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+- React DevTools: https://react.dev/learn/react-developer-tools

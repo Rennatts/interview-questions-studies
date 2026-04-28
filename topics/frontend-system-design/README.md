@@ -353,6 +353,252 @@ Front-end system design interviews test how you think about building UIs that sc
 
 ---
 
+## Scalability (escalabilidade)
+
+### 1) “Escalabilidade” em front-end significa escalar o quê?
+
+**Short answer**: Escalar **usuários**, **dados**, **features**, **times** e **mudanças** (deploys). Um sistema escalável continua previsível e rápido conforme o produto cresce.
+
+**Common dimensions**:
+- **User scale**: mais tráfego, dispositivos mais lentos, piores redes.
+- **Data scale**: listas enormes, busca, paginação, caches.
+- **Feature/team scale**: mais squads contribuindo sem quebrar padrões.
+- **Change scale**: releases frequentes com rollback seguro e observabilidade.
+
+---
+
+### 2) Quais são os sinais de que um front-end não escala bem?
+
+**Short answer**:
+- Bundles grandes e lentos para qualquer página
+- Re-renders amplos (estado global para tudo)
+- Sem limites de lista (sem paginação/virtualização)
+- Contratos de API inconsistentes (erros/paginação “case a case”)
+- Sem guardrails (lint/boundaries), “shared” vira dumping ground
+- Incidentes recorrentes sem prevenção (sem SLOs, sem rollout seguro)
+
+---
+
+### 3) Estratégias práticas para escalar performance (usuários e dados)
+
+**Short answer**:
+- **Code splitting** por rota/feature + controle de third-parties
+- **Virtualização** para listas grandes
+- **Cache** (HTTP + cache de server state) com keys corretas e invalidação clara
+- **Offload** de CPU para workers quando necessário
+- Metas e budgets (INP/LCP/CLS) + monitoramento (RUM)
+
+---
+
+### 4) Estratégias para escalar times (arquitetura e governança)
+
+**Short answer**:
+- Estrutura **feature-based** + boundaries explícitas (import rules)
+- Design system + tokens (consistência e velocidade)
+- APIs internas claras (barrels com parcimônia; módulos com contrato)
+- Docs curtas: “como fazer X aqui” + exemplos
+- CI com qualidade mínima (lint, typecheck, testes críticos)
+
+---
+
+### 5) Como escalar mudanças com segurança (rollouts)
+
+**Short answer**:
+- Feature flags com expiração
+- Canary/gradual ramp + rollback criteria
+- Observabilidade: erros, INP/LCP/CLS, funis críticos
+- Migrações em fases (compatibilidade para trás)
+
+---
+
+## Architecture boundaries & migrations (advanced)
+
+### 1) Boundaries enforcement: como impedir “spaghetti imports”?
+
+**Short answer**:
+- Defina módulos/áreas (ex: `features/*`, `shared/*`, `app/*`) e regras do que pode importar o quê.
+- Faça isso ser **enforçado** via lint/CI (não só “convenção”).
+
+**Exemplos de guardrails**:
+- ESLint rules para restringir caminhos de import
+- “Public API” por pasta (exports explícitos) em vez de importar arquivos internos
+- Codeowners/reviews obrigatórios para `shared/` e infra
+
+---
+
+### 2) Dependency inversion: o que significa no front-end?
+
+**Short answer**: Componentes/features devem depender de **abstrações** estáveis, não de detalhes concretos difíceis de trocar (ex: chamar `fetch` direto em todo lugar). Você injeta dependências (cliente HTTP, storage, clock) para tornar código testável e migrável.
+
+**Benefícios**:
+- Testes mais fáceis (mock no boundary)
+- Migrações mais seguras (trocar implementação por baixo)
+- Menos acoplamento entre camadas
+
+---
+
+### 3) “Shared kernel” pattern: quando vale a pena?
+
+**Short answer**: Um “shared kernel” é um conjunto pequeno e muito estável de tipos/contratos/primitivos compartilhados (ex: design tokens, tipos de domínio, cliente HTTP). Ele evita duplicação, mas exige governança para não virar dumping ground.
+
+**Regra**: O kernel deve ser **pequeno**, bem versionado e com owners claros.
+
+---
+
+### 4) Migrações e big refactors: como fazer com segurança?
+
+**Short answer**:
+- Faça migrações em fases (compatibilidade para trás) e reduza o “blast radius”.
+- Use feature flags para alternar entre caminhos antigo/novo.
+- Crie métricas/alertas e rollback criteria antes do rollout.
+- Prefira “strangler pattern”: envolver/substituir partes aos poucos.
+
+**Técnicas práticas**:
+- Adapter layer (nova API por trás de uma interface)
+- Dual run (rodar novo caminho em shadow e comparar resultados)
+- Codemods para mudanças mecânicas (imports/renames)
+
+---
+
+## Offline-first patterns
+
+### 1) O que significa “offline-first”?
+
+**Short answer**: O app deve funcionar com conectividade instável: ler dados do cache local, permitir algumas ações offline, e sincronizar depois. “Offline-first” é UX + consistência de dados.
+
+---
+
+### 2) Quais são os blocos principais de uma arquitetura offline-first?
+
+**Short answer**:
+- **Cache local** (IndexedDB) para dados grandes; evitar `localStorage` para isso.
+- **Sync engine**: fila de mutations offline + retry/backoff.
+- **Conflict resolution**: o que acontece quando servidor e cliente divergem.
+- **UI states**: “offline”, “syncing”, “stale”, “failed to sync”.
+
+---
+
+### 3) Que estratégias de cache você menciona em entrevistas?
+
+**Short answer**:
+- Navegação: `stale-while-revalidate` para telas de lista
+- Assets: cache-first via Service Worker para experiência rápida/offline
+- Dados: cache por key + timestamps + invalidation
+
+---
+
+## Multi-region latency strategies
+
+### 1) Quais problemas surgem em multi-region?
+
+**Short answer**:
+- Latência variável (usuários longe do data center)
+- Consistência eventual (replicação entre regiões)
+- “Read-your-writes” pode falhar se você lê em uma região diferente após escrever
+
+---
+
+### 2) Estratégias comuns para reduzir latência percebida no front-end
+
+**Short answer**:
+- CDN para assets + HTML (quando aplicável)
+- Edge caching para GETs cacheáveis
+- Prefetch de rotas/dados prováveis
+- Otimizar “first render” (SSR/SSG quando faz sentido) + reduzir JS
+- Server-state cache no cliente com stale-while-revalidate
+
+---
+
+### 3) Como lidar com consistência em uma UI global?
+
+**Short answer**:
+- Mostre estados (syncing/stale) quando frescor importa
+- Use otimistic UI com rollback e reconciliação
+- Tenha ids/versões/ETags para evitar lost updates
+
+---
+
+## Full prompts (feed / search / chat) + diagrams
+
+### 1) Prompt: design a scalable activity feed
+
+**Requirements (example)**:
+- Feed paginado (infinite scroll), filtros, ordenação
+- Suporte a updates em near real-time (opcional)
+- Boa performance em mobile
+
+**What to cover**:
+- Paginação (cursor), dedupe, cache keys
+- Virtualização, skeletons, error states
+- Caching (HTTP + client cache), revalidation
+
+**Diagram**:
+
+```mermaid
+flowchart LR
+  UI[Feed UI] --> Cache[Client server-state cache]
+  Cache -->|miss/stale| API[Feed API]
+  API --> Cache
+  UI -->|scroll| UI
+```
+
+---
+
+### 2) Prompt: design search-as-you-type
+
+**Requirements (example)**:
+- Busca com autocomplete, debounce
+- Cancelamento/ignorar respostas antigas
+- Rate limiting e caching
+
+**What to cover**:
+- Debounce + request id
+- Cache por query + TTL
+- UX de loading e empty states
+
+**Diagram**:
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant UI as UI
+  participant API as Search API
+  U->>UI: type "rea"
+  UI->>UI: debounce
+  UI->>API: GET /search?q=rea (reqId=3)
+  U->>UI: type "reac"
+  UI->>API: GET /search?q=reac (reqId=4)
+  API-->>UI: response reqId=3 (ignored)
+  API-->>UI: response reqId=4 (render)
+```
+
+---
+
+### 3) Prompt: design a chat system UI
+
+**Requirements (example)**:
+- Mensagens em tempo real
+- Reconnect + catch-up
+- Envio otimista
+
+**What to cover**:
+- WS/SSE choice, event protocol (id/seq)
+- Offline queue para sends (opcional)
+- Ordering/dedupe + reconciliation
+
+**Diagram**:
+
+```mermaid
+flowchart LR
+  UI[Chat UI] --> WS[WebSocket/SSE]
+  UI --> Outbox[Outbox queue]
+  Outbox --> WS
+  WS --> Store[Message store]
+  Store --> UI
+```
+
+---
+
 ## Suggested practice exercises
 
 - Design a dashboard page with 3 panels that fetch independently; define loading/error states per panel and the retry UX.
@@ -361,6 +607,8 @@ Front-end system design interviews test how you think about building UIs that sc
 - Design a “search as you type” flow: include debouncing, cancellation/ignoring stale responses, and cache key strategy.
 - Design cross-tab logout sync (choose `BroadcastChannel` or storage events) and describe failure modes.
 - Design a chat system UI: message list + typing indicator + presence. Define transport (WS/SSE), event protocol (ids/sequences), reconnect/catch-up plan, and optimistic send behavior.
+ - Pegue uma feature (ex: feed) e liste decisões para escalar: paginação, cache keys, virtualização, métricas (INP/LCP), rollout.
+- Escolha um “big refactor” (ex: trocar cliente HTTP ou arquitetura de rotas) e desenhe um plano em fases com flags, métricas e rollback.
 
 ## Links / references
 
