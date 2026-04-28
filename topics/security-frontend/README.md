@@ -277,6 +277,66 @@ Front-end security interview questions test whether you understand real web thre
 
 ---
 
+## LGPD (Lei Geral de Proteção de Dados) — front-end security & privacy
+
+### 1) O que é LGPD (em uma frase)?
+
+**Short answer**: LGPD é a lei brasileira que regula o tratamento de **dados pessoais** (incluindo dados pessoais sensíveis) e define princípios, bases legais e direitos dos titulares.
+
+---
+
+### 2) O que conta como dado pessoal (e por que isso importa no front-end)?
+
+**Short answer**: Qualquer informação relacionada a pessoa identificada ou identificável (ex: email, telefone, IP em certos contextos, identificadores de dispositivo, ids de conta). No front-end isso aparece em:
+- formulários e validações
+- logs, analytics, session replay
+- cookies/storage e identificadores persistentes
+
+---
+
+### 3) Princípios LGPD que impactam decisões técnicas no front-end
+
+**Short answer** (os mais “engenharia-friendly”):
+- **Finalidade / adequação**: colete só o que precisa para um objetivo claro.
+- **Necessidade (minimização)**: evite “capturar tudo” (DOM, campos, payloads).
+- **Segurança / prevenção**: proteja dados em trânsito e reduza superfícies de ataque.
+- **Transparência**: explique coleta/uso (consentimento quando aplicável).
+- **Qualidade dos dados**: evite dados errados e permita correções.
+
+---
+
+### 4) Consentimento vs outras bases legais: o que o front-end deve saber?
+
+**Short answer**: Nem todo tratamento exige consentimento, mas quando consentimento é a base, o front-end precisa:
+- coletar/registrar escolha de forma clara
+- permitir revogação
+- respeitar a escolha (não disparar tags antes do opt-in)
+
+**Prática comum**:
+- “Consent mode”/tag manager: só ativar analytics/ads após consentimento.
+
+---
+
+### 5) Segurança LGPD na prática: checklist técnico rápido
+
+**Short answer**:
+- **HTTPS** sempre; cookies de sessão com `HttpOnly` + `Secure` + `SameSite`.
+- Evitar armazenar dados sensíveis em `localStorage`/`sessionStorage`.
+- Redação/mascaramento de PII em logs, erros e replay.
+- Limitar coleta de analytics (allowlist de campos).
+- Sanitização/escapes para reduzir risco de XSS (que pode exfiltrar dados pessoais).
+
+---
+
+### 6) Direitos do titular: o que isso implica no produto?
+
+**Short answer**: O usuário pode solicitar acesso, correção, exclusão e portabilidade (entre outros). No front-end, isso normalmente implica:
+- fluxos de “download my data” / “delete my account”
+- estados de UI e confirmações seguras
+- auditoria/observabilidade sem expor PII (ids hashados)
+
+---
+
 ## Suggested practice exercises
 
 - Find 3 places in a UI where developers commonly introduce XSS and propose safe alternatives.
@@ -287,6 +347,8 @@ Front-end security interview questions test whether you understand real web thre
 - Pick one third-party script and decide whether to self-host it, apply SRI, or remove it; justify the decision.
 - Sketch a cross-site scenario that forces `SameSite=None` and list the CSRF mitigations you’d require.
 - Design a secure upload UX: client-side checks + signed URL flow + server validation + safe preview.
+- Liste quais dados pessoais sua app envia para analytics/logs e proponha uma política de redaction/allowlist compatível com LGPD.
+- Desenhe um fluxo de “delete account” (LGPD) incluindo confirmações, segurança (reauth), e comportamento de observabilidade (sem PII).
 
 ## Links / references
 
@@ -300,3 +362,5 @@ Front-end security interview questions test whether you understand real web thre
 - MDN: SameSite cookies: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
 - OAuth 2.0 (RFC 6749): https://www.rfc-editor.org/rfc/rfc6749
 - OIDC overview: https://openid.net/developers/how-connect-works/
+- Texto da LGPD (Lei 13.709/2018): https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm
+- ANPD (Autoridade Nacional): https://www.gov.br/anpd/pt-br
