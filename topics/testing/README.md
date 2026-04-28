@@ -167,6 +167,36 @@ Integration tests verify that multiple units work together correctly (e.g., comp
 
 End-to-end (E2E) tests validate critical user journeys through the system as a whole (browser → UI → network → backend). They’re the most realistic, but also the slowest and most expensive to maintain.
 
+## Spider testing (aka “spider test”)
+
+A **spider test** is a lightweight, automated sweep that “crawls” key pages/routes (often via the router sitemap or a curated list) to catch **broken navigation, crashes, missing assets, and obvious 4xx/5xx errors**. It’s usually broader than a smoke test (covers many routes) but shallower than full E2E (doesn’t deeply validate complex interactions).
+
+### When it’s useful
+
+- Catch “app is broken” regressions quickly (runtime errors, route misconfig, missing chunks)
+- Validate **links** and top-level navigation after refactors
+- Run in CI as a fast-ish confidence layer (especially for large SPAs)
+
+### What it typically asserts (examples)
+
+- Every route renders without uncaught exceptions
+- Critical elements exist (e.g., page heading, nav, auth gate behavior)
+- Network calls don’t return unexpected 5xx (or the UI handles them with a stable fallback)
+- No console errors of certain classes (optional; be careful to avoid noisy checks)
+
+### Spider test vs smoke test (rule of thumb)
+
+- **Smoke test**: very small set of **critical flows** (e.g., login → dashboard).
+- **Spider test**: broader set of **routes/pages** with shallow assertions (“does it load and not crash?”).
+
+### Minimal “test plan” example
+
+- Visit: `/`, `/login`, `/settings`, `/help`, `/account`
+- For each page:
+  - assert main heading is visible
+  - assert nav renders
+  - assert no uncaught errors
+
 ### 1) What is an E2E test?
 
 **Short answer**: A test that exercises a real user flow in a real browser environment, verifying the app works end-to-end across multiple layers.

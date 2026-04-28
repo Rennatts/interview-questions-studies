@@ -163,4 +163,8 @@ It’s designed to scale as you add more topics, questions, explanations, code e
   - `solution.md` (one or more solutions + trade-offs)
   - optional `test-cases.md` (edge cases to validate)
 
+### Testing notes included
+
+The testing topic includes guidance on unit/integration/E2E, plus practical concepts like **smoke tests** and **spider tests** (route/page sweep checks).
+
 # interview-questions-studies
