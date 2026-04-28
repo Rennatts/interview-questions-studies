@@ -37,7 +37,52 @@ typeof null;      // "object" (quirk)
 
 ---
 
-### 2) Explain `var`, `let`, and `const`.
+### 2) What are execution contexts and the call stack?
+
+**Short answer**: An **execution context** is the environment where JavaScript runs code (variables in scope, `this`, and where execution continues). The **call stack** is the LIFO structure that tracks which function is currently running by pushing/popping execution contexts.
+
+**Details**:
+- Each function invocation creates a new execution context and pushes it on the stack.
+- The browser can’t render or handle input while the call stack is busy with long synchronous work.
+- “Maximum call stack size exceeded” is usually deep/infinite recursion.
+
+**Example**:
+
+```js
+function a() { b(); }
+function b() { c(); }
+function c() { return "done"; }
+a();
+// stack: a -> b -> c
+```
+
+---
+
+### 3) Explain scope in JavaScript (global, function, block).
+
+**Short answer**: **Scope** is where a variable is accessible. JavaScript uses **global scope**, **function scope** (e.g., `var` and parameters), and **block scope** (e.g., `let`/`const` inside `{}`).
+
+**Details**:
+- **Global**: top-level bindings; in ESM, top-level is module-scoped and not added as properties on `window`.
+- **Function**: scope created per function call; `var` is function-scoped.
+- **Block**: scope created by `{}` in `if/for/while/try`; `let`/`const` live here.
+
+**Example**:
+
+```js
+function demo(flag) {
+  if (flag) {
+    let x = 1;
+    var y = 2;
+  }
+  // console.log(x); // ReferenceError (block-scoped)
+  console.log(y);    // 2 (function-scoped)
+}
+```
+
+---
+
+### 4) Explain `var`, `let`, and `const`.
 
 **Short answer**: `var` is function-scoped and hoisted (initialized to `undefined`), while `let`/`const` are block-scoped and hoisted but in the TDZ; `const` prevents reassignment, not mutation.
 
@@ -64,7 +109,7 @@ obj.a = 2; // ok (mutation)
 
 ---
 
-### 3) What is hoisting?
+### 5) What is hoisting?
 
 **Short answer**: JavaScript moves declarations to the top of their scope at compile time; the behavior differs by declaration kind.
 
@@ -85,7 +130,7 @@ var a = 1;
 
 ---
 
-### 4) What is a closure, and why is it useful?
+### 6) What is a closure, and why is it useful?
 
 **Short answer**: A closure is when a function “remembers” variables from its lexical scope even after that outer function has finished.
 
@@ -107,7 +152,7 @@ next(); // 2
 
 ---
 
-### 5) Explain lexical scope.
+### 7) Explain lexical scope.
 
 **Short answer**: Variable access is determined by where code is written (the nested function structure), not by where it’s called.
 
@@ -127,7 +172,7 @@ outer();
 
 ---
 
-### 6) What is `this` in JavaScript?
+### 8) What is `this` in JavaScript?
 
 **Short answer**: `this` depends on how a function is called; arrow functions don’t have their own `this` and capture it lexically.
 
@@ -152,7 +197,7 @@ o.g(); // usually undefined
 
 ---
 
-### 7) What’s the difference between `==` and `===`?
+### 9) What’s the difference between `==` and `===`?
 
 **Short answer**: `===` is strict equality (no coercion). `==` allows type coercion and has tricky rules; prefer `===` in most code.
 
@@ -169,7 +214,7 @@ null === undefined; // false
 
 ---
 
-### 8) What is type coercion? Give an example where it surprises people.
+### 10) What is type coercion? Give an example where it surprises people.
 
 **Short answer**: Coercion is JavaScript converting values between types (often implicitly) for operators like `+`, comparisons, and `==`.
 
@@ -187,7 +232,7 @@ null === undefined; // false
 
 ---
 
-### 9) Explain pass-by-value vs pass-by-reference in JavaScript.
+### 11) Explain pass-by-value vs pass-by-reference in JavaScript.
 
 **Short answer**: JavaScript is **pass-by-value**. For objects, the value being copied is the **reference** (pointer) to the object.
 
@@ -207,7 +252,7 @@ obj.a; // 1
 
 ---
 
-### 10) What is the prototype chain?
+### 12) What is the prototype chain?
 
 **Short answer**: Objects can inherit properties from another object via `[[Prototype]]` (exposed by `Object.getPrototypeOf`). Property lookup walks up the chain until it finds a match or reaches `null`.
 
@@ -222,7 +267,7 @@ Object.getPrototypeOf(child) === parent; // true
 
 ---
 
-### 11) What does `new` do?
+### 13) What does `new` do?
 
 **Short answer**: `new Fn()` creates a new object, sets its prototype to `Fn.prototype`, binds `this` inside `Fn` to that object, then returns the object (unless `Fn` returns a different object).
 
@@ -240,7 +285,7 @@ p.say(); // "hi Renata"
 
 ---
 
-### 12) What is the event loop (microtasks vs macrotasks)?
+### 14) What is the event loop (microtasks vs macrotasks)?
 
 **Short answer**: The event loop runs tasks from queues. Promise reactions (`then/catch/finally`) run as **microtasks**, which generally run before the next **macrotask** (like `setTimeout`).
 
@@ -261,7 +306,7 @@ console.log("D");
 
 ---
 
-### 13) What is a Promise, and what states can it be in?
+### 15) What is a Promise, and what states can it be in?
 
 **Short answer**: A Promise represents a future value and can be **pending**, **fulfilled**, or **rejected**. Once settled, it stays settled.
 
@@ -271,7 +316,7 @@ console.log("D");
 
 ---
 
-### 14) `async/await` vs `.then()`: what’s the difference?
+### 16) `async/await` vs `.then()`: what’s the difference?
 
 **Short answer**: They’re different syntax on top of Promises. `async/await` makes async code read like synchronous code; `.then()` is explicit chaining.
 
@@ -293,7 +338,7 @@ const [a2, b2] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-### 15) What’s the difference between `null` and `undefined`?
+### 17) What’s the difference between `null` and `undefined`?
 
 **Short answer**: `undefined` usually means “not provided / not initialized”; `null` is an explicit “no value”.
 
@@ -303,7 +348,7 @@ const [a2, b2] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-### 16) What are the differences between `map`, `forEach`, `filter`, and `reduce`?
+### 18) What are the differences between `map`, `forEach`, `filter`, and `reduce`?
 
 **Short answer**:
 - `map` transforms each element → new array
@@ -322,7 +367,7 @@ xs.reduce((sum, x) => sum + x, 0); // 6
 
 ---
 
-### 17) What are `Map` and `Set`, and when would you use them?
+### 19) What are `Map` and `Set`, and when would you use them?
 
 **Short answer**:
 - `Map`: key/value store with any key type; predictable iteration order; better for frequent inserts/lookups than plain objects in some cases.
@@ -340,7 +385,7 @@ m.set({ id: 1 }, "value"); // object keys are ok
 
 ---
 
-### 18) What is debouncing vs throttling?
+### 20) What is debouncing vs throttling?
 
 **Short answer**:
 - **Debounce**: run after events stop firing (e.g., search input)
@@ -351,7 +396,7 @@ m.set({ id: 1 }, "value"); // object keys are ok
 
 ---
 
-### 19) How do you handle errors in async code?
+### 21) How do you handle errors in async code?
 
 **Short answer**: Use `try/catch` with `await`, or `.catch()` in Promise chains; ensure errors propagate and are not silently swallowed.
 
@@ -372,7 +417,7 @@ async function load() {
 
 ---
 
-### 20) What are common sources of memory leaks in front-end JavaScript?
+### 22) What are common sources of memory leaks in front-end JavaScript?
 
 **Short answer**: Unreleased references that prevent GC, commonly from long-lived event listeners, timers, caches, or closures retaining large objects.
 
@@ -381,6 +426,34 @@ async function load() {
 - `setInterval` not cleared
 - Caches without eviction
 - Detached DOM nodes still referenced in JS
+
+---
+
+### 23) Modules: what’s the difference between ESM and CommonJS?
+
+**Short answer**: **ESM** uses `import`/`export` and is the standard for modern front-end code and browsers; **CommonJS** uses `require`/`module.exports` and is historically Node.js’ default. ESM is more amenable to static analysis and tree-shaking.
+
+**Key differences**:
+- **Syntax**:
+  - ESM: `import { x } from "./m.js"; export const y = ...`
+  - CJS: `const { x } = require("./m"); module.exports = ...`
+- **Static vs dynamic**:
+  - ESM imports are designed to be statically analyzable.
+  - CJS can be more dynamic (conditional `require`), which can complicate bundling.
+- **Top-level `this`**:
+  - In ESM, top-level `this` is `undefined`.
+
+**Example**:
+
+```js
+// ESM
+export function add(a, b) { return a + b; }
+import { add } from "./math.js";
+
+// CommonJS
+module.exports.add = (a, b) => a + b;
+const { add: add2 } = require("./math");
+```
 
 ---
 
@@ -399,29 +472,3 @@ async function load() {
 - MDN `this`: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
 - MDN Promises: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 - You Don’t Know JS (book series): https://github.com/getify/You-Dont-Know-JS
-
-## JavaScript fundamentals
-
-This topic covers the core JavaScript concepts that show up constantly in front-end interviews.
-
-### What you should be able to do
-
-- **Explain** how JavaScript executes code (call stack, event loop, tasks/microtasks)
-- **Reason** about scope, closures, and `this`
-- **Predict** behavior for coercion, equality, and common edge cases
-- **Use** functions fluently (parameters, defaults, rest/spread, callbacks)
-- **Work** with arrays/objects immutably and safely
-- **Understand** prototypes, classes, and inheritance basics
-
-### How to study this topic
-
-- Read `questions.md` top-to-bottom once.
-- Then do exercises in `exercises/` without looking at solutions.
-- Run code samples in `code/` and tweak them until you can predict outputs.
-
-### Files in this topic
-
-- `questions.md`
-- `exercises/`
-- `code/`
-

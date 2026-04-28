@@ -129,6 +129,20 @@ It’s designed to scale as you add more topics, questions, explanations, code e
 ### Topics
 
 - [JavaScript fundamentals](topics/javascript-fundamentals/README.md)
+- [HTML (Semantic HTML foundations)](topics/html/README.md)
+- [CSS (Box Model foundations)](topics/css/README.md)
+- [Browser & Web APIs (DOM & BOM foundations)](topics/browser-apis/README.md)
+- [Web Performance (Critical Rendering Path)](topics/web-performance/README.md)
+- [Accessibility (WCAG principles)](topics/accessibility/README.md)
+- [Front-End Architecture (folder patterns)](topics/frontend-architecture/README.md)
+- [Testing (Unit testing foundations)](topics/testing/README.md)
+- [Front-End System Design (scalable UI)](topics/frontend-system-design/README.md)
+- [DSA (Arrays & strings)](topics/dsa-frontend/README.md)
+- [Front-End Debugging (playbook)](topics/front-end-debugging/README.md)
+- [Behavioral (STAR stories)](topics/behavioral/README.md)
+- [Security (Frontend)](topics/security-frontend/README.md)
+- [React (core interview topics)](topics/react/README.md)
+- [TypeScript (core interview topics)](topics/typescript/README.md)
 
 ### Conventions used in this repo
 
