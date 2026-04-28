@@ -8,6 +8,27 @@ Testing questions come up in interviews because they reveal how you balance **co
 - Prefer answers that mention **trade-offs** (mocking, brittleness, coverage vs confidence).
 - Add your own notes under **Notes / variations**.
 
+## Test types (practical taxonomy)
+
+These labels overlap (teams use them differently). In interviews, anchor them by **goal** (fast feedback vs realistic confidence) and **scope** (unit → slice → full system).
+
+- **Unit**: smallest scope; pure logic; fastest feedback.
+- **Integration**: multiple modules together (UI + router + state, UI + mocked network); high signal for front-end apps.
+- **E2E**: full user journey in a real browser; keep small and high-value.
+- **Smoke test**: a tiny set of critical checks to answer “is the app basically working?” (often run after deploy).
+- **Sanity test**: quick check after a small change/fix (“did we break the thing we just touched?”); sometimes used interchangeably with smoke.
+- **Regression test**: added specifically to prevent a bug from coming back (can be unit/integration/E2E).
+- **Spider test**: broad, shallow sweep across many routes/pages to catch crashes and broken navigation.
+- **Snapshot test**: capture output/DOM and diff on change; use sparingly to avoid noisy diffs.
+- **Golden/master test**: compare outputs against a “known good” baseline (images, PDFs, ASTs); great when diffing is meaningful.
+- **Contract test**: verify consumer ↔ provider expectations (schema, error shape, status codes) without full E2E.
+- **Visual regression test**: screenshot diffs to catch unintended UI changes (stabilize fonts/animations/data).
+- **Accessibility (a11y) test**: automated checks (axe) + keyboard flows; complements manual audits.
+- **Performance test**: measure budgets (LCP/INP, bundle size, render time) in CI; catch regressions early.
+- **Security test**: SAST/dependency scanning + targeted checks (e.g., CSP, XSS sinks) depending on the app.
+- **Mutation test**: deliberately mutate code to see if tests fail; gauges test suite effectiveness (slower, use selectively).
+- **Property-based / fuzz test**: generate many randomized inputs to discover edge cases (great for parsers/formatters/validators).
+
 ---
 
 ## Questions & answers
@@ -495,6 +516,96 @@ A **spider test** is a lightweight, automated sweep that “crawls” key pages/
 - Add **E2E tests** only for a small set of business-critical journeys and high-risk integrations.
 
 ---
+
+### 6) What is a smoke test?
+
+**Short answer**: A smoke test is a **small set of critical checks** that answers “is the app basically working?” (e.g., app boots, routing works, a key page renders, a core API call succeeds). It’s usually run on a fresh build or right after deploy.
+
+**Rule of thumb**: Keep it tiny and stable; it’s a gate for obvious breakages, not deep correctness.
+
+---
+
+### 7) What is a sanity test (and how is it different from smoke)?
+
+**Short answer**: A sanity test is a **quick verification after a specific change** (“did we break the thing we just touched?”). Teams sometimes use “sanity” and “smoke” interchangeably, but a useful distinction is:
+- **Smoke**: broad “system is alive” checks after build/deploy.
+- **Sanity**: narrow checks focused on a recent fix/change.
+
+---
+
+### 8) What is a regression test?
+
+**Short answer**: A regression test is a test added to ensure a **previously fixed bug never comes back**. It’s defined by **why it exists** (prevent recurrence), not by scope—regression tests can be unit, integration, or E2E.
+
+**Best practice**: Reproduce the bug with the smallest, most reliable scope that would have caught it.
+
+---
+
+### 9) What is a spider test (route/page sweep)?
+
+**Short answer**: A spider test is a broad, shallow sweep across many routes/pages to catch **crashes, broken navigation, missing chunks/assets, and obvious 4xx/5xx issues**—without asserting deep user flows.
+
+**Good fit**: Large SPAs after routing refactors or dependency upgrades.
+
+---
+
+### 10) What are golden/master tests (a.k.a. “golden files”)?
+
+**Short answer**: Golden/master tests compare output to a **known-good baseline artifact** (e.g., serialized data, generated HTML, images, PDFs). They’re great when diffs are meaningful and reviewing baseline updates is safe.
+
+**Pitfall**: Baselines can become “rubber-stamped” if diffs are too large/noisy—keep artifacts small and readable.
+
+---
+
+### 11) How do you approach accessibility (a11y) testing?
+
+**Short answer**: Combine:
+- **Automated checks** (axe rules, role/name/label assertions, color contrast where feasible)
+- **Keyboard flow tests** (tab order, focus traps, escape to close dialogs)
+- **Targeted manual audits** for critical paths (screen reader spot-checks)
+
+**Interview-friendly line**: “Automated a11y catches common issues; manual testing validates real usability.”
+
+---
+
+### 12) What does performance testing look like for front-end apps?
+
+**Short answer**: Performance testing is often **regression-focused**: define budgets and alert on changes.
+
+**Common signals**:
+- Core Web Vitals (LCP/INP/CLS) in a controlled environment
+- Bundle size / code-splitting checks
+- Interaction timing (render cost, long tasks) for key screens
+
+**Pitfall**: Measuring on unstable environments; prefer repeatable runs and compare deltas.
+
+---
+
+### 13) What kinds of security tests are common for front-end work?
+
+**Short answer**: Front-end security testing often mixes:
+- **Dependency scanning** (known vulnerable packages)
+- **Static checks** (lint rules for unsafe patterns, secret scanning)
+- **Config checks** (CSP, secure cookies, correct CORS assumptions at the edges)
+- **Targeted tests** for risky areas (HTML injection/XSS sinks, URL handling, auth flows)
+
+---
+
+### 14) What is mutation testing and when is it worth it?
+
+**Short answer**: Mutation testing changes code in small ways (mutants) to see whether tests fail. If tests pass, the suite may be missing meaningful assertions.
+
+**When it’s worth it**: Critical logic (money/auth), libraries/utilities, or when you suspect coverage is “high but weak.”
+
+---
+
+### 15) What are property-based tests and fuzz tests?
+
+**Short answer**:
+- **Property-based**: generate many inputs and assert **invariants** (properties) always hold (e.g., encode/decode round-trip, sorting keeps order).
+- **Fuzzing**: bombard code with randomized or malformed inputs to find crashes or unexpected behavior.
+
+**Good fit**: Parsers, formatters, validators, URL handling, and edge-case-heavy utilities.
 
 ## Suggested practice exercises
 
